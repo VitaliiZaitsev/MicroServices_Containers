@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: my-db
+  template:
+    metadata:
+      labels:
+        app: my-db
+    spec:
+      containers:
+      - image: postgres:10.13
+        name: postgresql
+        ports:
+        - containerPort: 5432
+          name: postgresql
+          protocol: TCP        
+        env:
+        - name: POSTGRES_DB
+          value: testdatabase
+        - name: POSTGRES_USER
+          value: testuser
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: db_password
